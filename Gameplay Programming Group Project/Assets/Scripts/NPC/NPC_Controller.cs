@@ -45,12 +45,8 @@ public class NPC_Controller : MonoBehaviour
     private Vector3 target_destination;
     private float scale = 5.0f;
 
-    protected PlayerMovController player_controller;
-
-    /*protected int supports = 0;
-    protected float additional_decay = 0.0f;
-    protected float gravity = 9.8f;
-    protected float gravity_pull = 0.0f;*/
+    /*protected PlayerMovController player_controller;*/
+    protected PlayerControllerLite player_controller;
 
     private void Awake()
     {
@@ -108,7 +104,6 @@ public class NPC_Controller : MonoBehaviour
     private void FixedUpdate()
     {
         OwnFixedUpdate();
-        /*HandleGravity();*/
         if(ConditionalMove())
         {
             enemy_state = Move();
@@ -265,12 +260,6 @@ public class NPC_Controller : MonoBehaviour
         var offset = destination - transform.position;
         Vector3 rotate = RotateCalc(offset, destination.y);
         Vector3 movement = XZMoveCalc(rotate);
-        /*movement.y += gravity_pull;
-        if (!ConditionalMove())
-        {
-            movement.x = 0.0f;
-            movement.z = 0.0f;
-        }*/
         Vector3 next_pos = transform.position + movement;
         transform.position = Vector3.Lerp(transform.position, next_pos, Time.deltaTime);
     }
@@ -345,40 +334,12 @@ public class NPC_Controller : MonoBehaviour
         }
         return Vector3.Distance(new_pos, new_vector);
     }
- 
-    /*private void HandleGravity()
-    {
-        if (supports > 0)
-        {
-            additional_decay = 0.0f;
-            gravity_pull = - gravity * Time.deltaTime;
-        }
-        else
-        {
-            gravity_pull -= (gravity * Time.deltaTime) + additional_decay;
-            additional_decay += (0.2f * Time.deltaTime);
-        }
-    }*/
-    /*private void OnCollisionEnter(Collision collision)
-    {
-        if(collision.gameObject.tag == "Ground" && transform.position.y >= collision.transform.position.y)
-        {
-            supports ++;
-        }
-    }
-    private void OnCollisionExit(Collision collision)
-    {
-        if(collision.gameObject.tag == "Ground" && transform.position.y >= collision.transform.position.y)
-        {
-            supports --;
-        }
-    }*/
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Player")
         {
-            player_controller = other.gameObject.GetComponent<PlayerMovController>();
+            player_controller = other.gameObject.GetComponent<PlayerControllerLite>();
             player_controller.AddNPC(gameObject.GetComponent<NPC_Controller>());
         }
     }
@@ -386,7 +347,7 @@ public class NPC_Controller : MonoBehaviour
     {
         if (other.gameObject.tag == "Player")
         {
-            player_controller = other.gameObject.GetComponent<PlayerMovController>();
+            player_controller = other.gameObject.GetComponent<PlayerControllerLite>();
             player_controller.RemoveNPC(gameObject.GetComponent<NPC_Controller>());
             give_up_timer = give_up_time;
             giving_up = true;
@@ -396,10 +357,10 @@ public class NPC_Controller : MonoBehaviour
     {
         if (other.gameObject.tag == "Player")
         {
-            /*if(DamageConditions())
+            if(DamageConditions())
             {
                 TakeDamage(player_controller.damage);
-            }*/
+            }
         }
     }
 
