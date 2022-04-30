@@ -27,7 +27,8 @@ public class NPC_Controller : MonoBehaviour
     public float give_up_time = 1.0f;
     public Vector2 roaming_bounds_x = new Vector2(-5,5);
     public Vector2 roaming_bounds_z = new Vector2(-5, 5);
-    
+    public float roaming_percision = 2.5F;
+    public Transform arena_center;
 
     [System.NonSerialized] public float distance_from_target;
     [System.NonSerialized] public bool line_of_sight;
@@ -43,7 +44,7 @@ public class NPC_Controller : MonoBehaviour
     private float give_up_timer = -0.1f;
     private bool giving_up = false;
     private Vector3 target_destination;
-    private float scale = 5.0f;
+    /*private float scale = 5.0f;*/
 
     /*protected PlayerMovController player_controller;*/
     protected PlayerControllerLite player_controller;
@@ -52,6 +53,10 @@ public class NPC_Controller : MonoBehaviour
     {
         enemy_state = default_state;
         OwnAwake();
+        if(arena_center == null)
+        {
+            arena_center = transform.parent;
+        }
     }
     
     private void OnValidate()
@@ -194,19 +199,20 @@ public class NPC_Controller : MonoBehaviour
         {
             return enemyState.CHASING;
         }
-        if (destination == Vector3.zero || GetSuppressedDistance(destination, Enums.Axis.YAXIS) < scale)
+        if (destination == Vector3.zero || GetSuppressedDistance(destination, Enums.Axis.YAXIS) < roaming_percision)
         {
-            Vector3 old_destination = destination;
-            while(GetSuppressedDistance(destination, old_destination, Enums.Axis.YAXIS) < scale * 2)
-            {
-                destination = Vector3.zero;
-                destination.x = Random.Range(roaming_bounds_x.x, roaming_bounds_x.y);
-                destination.z = Random.Range(roaming_bounds_z.x, roaming_bounds_z.y);
-                destination = transform.parent.position + destination;
-            }
+                Vector3 old_destination = destination;
+                while (GetSuppressedDistance(destination, old_destination, Enums.Axis.YAXIS) < roaming_percision * 2)
+                {
+                    destination = Vector3.zero;
+                    destination.x = Random.Range(roaming_bounds_x.x, roaming_bounds_x.y);
+                    destination.z = Random.Range(roaming_bounds_z.x, roaming_bounds_z.y);
+                    destination = arena_center.position + destination;
+                }
         }
 
         MoveTowards(destination);
+
         return enemyState.ROAMING;
     }
     private enemyState Disengage(float dt)
@@ -218,7 +224,7 @@ public class NPC_Controller : MonoBehaviour
                 Vector3 non_y_pos = new Vector3(transform.position.x, 0f, transform.position.z);
                 Vector3 non_y_destination = patrol_route.spline.GetPoint(patrol_route.progress);
                 non_y_destination.y = 0;
-                if (Vector3.Distance(non_y_pos, non_y_destination) < scale)
+                if (Vector3.Distance(non_y_pos, non_y_destination) < roaming_percision)
                 {
                     patrol_route.active = true;
                     return enemyState.PATROLING;
