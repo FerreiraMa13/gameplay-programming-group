@@ -42,10 +42,10 @@ public class PickUp : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
         if (player_transform && power_up.transform)
         {
-            if (power_up.tag != "Weapon")
+            /*if (power_up.tag != "Weapon")
             {
                 power_up.transform.Rotate(2, 2, 2);
 
@@ -56,7 +56,7 @@ public class PickUp : MonoBehaviour
                     up_lift = -Physics.gravity * (force - power_up.GetComponent<Rigidbody>().velocity.y * bounce_damp);
                     power_up.GetComponent<Rigidbody>().AddForceAtPosition(up_lift, action_point);
                 }
-            }
+            }*/
 
             dist = Vector3.Distance(power_up.transform.position, player_transform.position);
             if (dist < 2.5)
@@ -80,7 +80,7 @@ public class PickUp : MonoBehaviour
                 else if (power_up.tag == "Weapon")
                 {
                     //text_canvas.SetActive(true);
-                } 
+                }
             }
             else if (power_up.tag == "Weapon" && dist >= 2)
             {
@@ -94,7 +94,25 @@ public class PickUp : MonoBehaviour
             deleteWeapon();
         }
     }
+    private void FixedUpdate()
+    {
+        pickUpRotation();
+    }
+    private void pickUpRotation()
+    {
+        if (player_transform && power_up.transform && power_up.tag != "Weapon")
+        {
+            power_up.transform.Rotate(2, 2, 2);
 
+            action_point = power_up.transform.position + power_up.transform.TransformDirection(buoyancy_offset);
+            force = 1f - ((action_point.y - float_level) / float_height);
+            if (force > 0f)
+            {
+                up_lift = -Physics.gravity * (force - power_up.GetComponent<Rigidbody>().velocity.y * bounce_damp);
+                power_up.GetComponent<Rigidbody>().AddForceAtPosition(up_lift, action_point);
+            }
+        }
+    }
     private void deleteWeapon()
     {
         delete = false;
