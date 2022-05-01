@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - LookAt Point
+  - HP
+  - SprintBuff
+  - DoubleJump
   layers:
   - Default
   - TransparentFX

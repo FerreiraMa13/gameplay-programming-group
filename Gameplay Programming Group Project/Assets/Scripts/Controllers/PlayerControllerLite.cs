@@ -66,6 +66,16 @@ public class PlayerControllerLite : MonoBehaviour
 
     /*Pick_Up.PowerUpEffects status_effect = Pick_Up.PowerUpEffects.NULL;
     float effect_timer = 0.0f;*/
+    [System.NonSerialized] public float jump_boost_timer = 0f;
+    [System.NonSerialized] public float speed_boost_timer = 0f;
+    [System.NonSerialized] public bool sprint_power = false;
+    private float hp_timer = 0f;
+    private float dmg_timer = 0f;
+
+    [SerializeField] private GameObject jump_p;
+    [SerializeField] private GameObject sprint_p;
+    [SerializeField] private GameObject health_p;
+    [SerializeField] private GameObject dmg_p;
 
     [System.NonSerialized]
     public bool restricted = false;
@@ -133,6 +143,8 @@ public class PlayerControllerLite : MonoBehaviour
     }
     private void Update()
     {
+        handleTimers();
+
         if(current_hp <= 0)
         {
             Reset();
@@ -267,39 +279,101 @@ public class PlayerControllerLite : MonoBehaviour
             }
         }
     }
-/*    private void HandleEffects()
-    {
-        if(status_effect != Pick_Up.PowerUpEffects.NULL)
+    /*    private void HandleEffects()
         {
-            Debug.Log("Effect being handled");
-            if(effect_timer < 0)
+            if(status_effect != Pick_Up.PowerUpEffects.NULL)
+            {
+                Debug.Log("Effect being handled");
+                if(effect_timer < 0)
+                {
+                    speed_boost = 1.0f;
+                    number_jumps = 1;
+                    status_effect = Pick_Up.PowerUpEffects.NULL;
+                    effect_timer = 0;
+                    Debug.Log("Effect dissipated");
+                }
+                else
+                {
+                    effect_timer -= Time.deltaTime;
+                }
+            }
+
+            switch (status_effect)
+            {
+                case (Pick_Up.PowerUpEffects.SPEED_BOOST):
+                    {
+                        speed_boost = 2;
+                        break;
+                    }
+                case (Pick_Up.PowerUpEffects.DOUBLE_JUMP):
+                    {
+                        number_jumps = 2;
+                        break;
+                    }
+            }
+        }*/
+    public void healthUp()
+    {
+        hp += 5;
+        hp_timer = 2f;
+        health_p.SetActive(true);
+        health_p.GetComponent<ParticleSystem>().Play();
+    }
+    public void jumpPower()
+    {
+        number_jumps += 1;
+        jump_boost_timer = 10f;
+    }
+    private void handleTimers()
+    {
+        if (number_jumps > 1)
+        {
+            jump_p.SetActive(true);
+            var ps = jump_p.GetComponent<ParticleSystem>();
+            var pMain = ps.main;
+            pMain.startSize = new ParticleSystem.MinMaxCurve(0.01f, jump_p.GetComponent<ParticleSystem>().main.startSize.constantMax - 0.05f * Time.deltaTime);
+            jump_boost_timer -= Time.deltaTime;
+            if (jump_boost_timer <= 0.0f)
+            {
+                number_jumps = 1;
+                pMain.startSize = new ParticleSystem.MinMaxCurve(0.025f, 0.5f);
+                jump_p.SetActive(false);
+
+            }
+        }
+        if (sprint_power)
+        {
+            sprint_p.SetActive(true);
+            var ps = sprint_p.GetComponent<ParticleSystem>();
+            var pMain = ps.main;
+            pMain.startSize = new ParticleSystem.MinMaxCurve(0.01f, sprint_p.GetComponent<ParticleSystem>().main.startSize.constantMax - 0.025f * Time.deltaTime);
+            speed_boost = 2.0f;
+            speed_boost_timer -= Time.deltaTime;
+            if (speed_boost_timer <= 0.0f)
             {
                 speed_boost = 1.0f;
-                number_jumps = 1;
-                status_effect = Pick_Up.PowerUpEffects.NULL;
-                effect_timer = 0;
-                Debug.Log("Effect dissipated");
-            }
-            else
-            {
-                effect_timer -= Time.deltaTime;
+                sprint_power = false;
+                pMain.startSize = new ParticleSystem.MinMaxCurve(0.01f, 0.25f);
+                sprint_p.SetActive(false);
             }
         }
-
-        switch (status_effect)
+        if (hp_timer >= 0)
         {
-            case (Pick_Up.PowerUpEffects.SPEED_BOOST):
-                {
-                    speed_boost = 2;
-                    break;
-                }
-            case (Pick_Up.PowerUpEffects.DOUBLE_JUMP):
-                {
-                    number_jumps = 2;
-                    break;
-                }
+            hp_timer -= Time.deltaTime;
+            if (hp_timer <= 0)
+            {
+                health_p.SetActive(false);
+            }
         }
-    }*/
+        if (dmg_timer >= 0)
+        {
+            dmg_timer -= Time.deltaTime;
+            if (dmg_timer <= 0)
+            {
+                dmg_p.SetActive(false);
+            }
+        }
+    }
     private void Jump()
     {
         if(jump_attempts < number_jumps && !landing)
@@ -330,6 +404,9 @@ public class PlayerControllerLite : MonoBehaviour
         if(current_hp > 0)
         {
             current_hp -= damage_taken;
+            dmg_timer = 2f;
+            dmg_p.SetActive(true);
+            dmg_p.GetComponent<ParticleSystem>().Play();
         }
     }
     private bool Compare2Deadzone( float value)
