@@ -64,19 +64,22 @@ public class TriggerBehaviour : MonoBehaviour
     {
         if(other.tag == "Player" && !triggered && !onExitOnly)
         {
-            if(onEnterDelay > 0)
+            if(CheckConditions())
             {
-                onEnterTimer = onEnterDelay;
-                onEnterTriggered = true;
-
-                if(onExitTriggered)
+                if (onEnterDelay > 0)
                 {
-                    onExitTriggered = false;
+                    onEnterTimer = onEnterDelay;
+                    onEnterTriggered = true;
+
+                    if (onExitTriggered)
+                    {
+                        onExitTriggered = false;
+                    }
                 }
-            }
-            else
-            {
-                EnterTrigger();
+                else
+                {
+                    EnterTrigger();
+                }
             }
         }
     }
@@ -84,19 +87,22 @@ public class TriggerBehaviour : MonoBehaviour
     {
         if (other.tag == "Player" && !triggered)
         {
-            if(onExitDelay > 0)
+            if(CheckConditions())
             {
-                onExitTimer = onExitDelay;
-                onExitTriggered = true;
-
-                if(onEnterTriggered)
+                if (onExitDelay > 0)
                 {
-                    onEnterTriggered = false;
+                    onExitTimer = onExitDelay;
+                    onExitTriggered = true;
+
+                    if (onEnterTriggered)
+                    {
+                        onEnterTriggered = false;
+                    }
                 }
-            }
-            else
-            {
-                ExitTrigger();
+                else
+                {
+                    ExitTrigger();
+                }
             }
         }
     }
@@ -126,5 +132,20 @@ public class TriggerBehaviour : MonoBehaviour
         {
             triggered = true;
         }
+    }
+    private bool CheckConditions()
+    {
+        var conditions = GetComponents<Condition>();
+        if (conditions != null)
+        {
+            foreach (Condition condition in conditions)
+            {
+                if (!condition.CheckCondition())
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

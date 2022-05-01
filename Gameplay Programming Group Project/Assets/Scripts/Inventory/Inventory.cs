@@ -5,6 +5,12 @@ using UnityEngine;
 public class Inventory : MonoBehaviour
 {
     private List<Inventory_Object> inventory;
+    public List<string> debug_inventoryStrings;
+
+    private void Awake()
+    {
+        inventory = new List<Inventory_Object>();
+    }
     public bool AddNewObject(string object_name, int object_quantity = 1)
     {
         int index = FindIndexOf(object_name);
@@ -17,6 +23,7 @@ public class Inventory : MonoBehaviour
             if (object_quantity > 0)
             {
                 inventory.Add(new Inventory_Object(object_name, inventory.Count, object_quantity));
+                debug_inventoryStrings.Add(object_name);
             }
             else
             {
@@ -130,35 +137,56 @@ public class Inventory : MonoBehaviour
         }
         return false;
     }
+    public bool CheckForObject(string object_name, int object_quantity)
+    {
+        foreach (Inventory_Object inv_object in inventory)
+        {
+            if (inv_object.object_name.ToLower() == object_name.ToLower())
+            {
+                return (object_quantity <= inv_object.object_quantity);
+            }
+        }
+        return false;
+    }
     public int FindIndexOf(int object_id)
     {
-        foreach(Inventory_Object inv_object in inventory)
+        if (inventory != null)
         {
-            if(inv_object.object_id == object_id)
+
+            foreach (Inventory_Object inv_object in inventory)
             {
-                return inventory.IndexOf(inv_object);
+                if (inv_object.object_id == object_id)
+                {
+                    return inventory.IndexOf(inv_object);
+                }
             }
         }
         return -1;
     }
     public int FindIndexOf(string object_name)
     {
-        foreach (Inventory_Object inv_object in inventory)
+        if(inventory != null)
         {
-            if (inv_object.object_name.ToLower() == object_name.ToLower())
+            foreach (Inventory_Object inv_object in inventory)
             {
-                return inventory.IndexOf(inv_object);
+                if (inv_object.object_name.ToLower() == object_name.ToLower())
+                {
+                    return inventory.IndexOf(inv_object);
+                }
             }
         }
         return -1;
     }
     public int FindIndexOf(Inventory_Object search_object)
     {
-        foreach (Inventory_Object inv_object in inventory)
+        if (inventory != null)
         {
-            if (inv_object == search_object)
+            foreach (Inventory_Object inv_object in inventory)
             {
-                return inventory.IndexOf(inv_object);
+                if (inv_object == search_object)
+                {
+                    return inventory.IndexOf(inv_object);
+                }
             }
         }
         return -1;

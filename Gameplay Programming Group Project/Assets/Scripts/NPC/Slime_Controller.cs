@@ -90,6 +90,10 @@ public class Slime_Controller : NPC_Controller
                 SpawnSlime(lives);
                 SpawnSlime(lives);
             }
+            else
+            {
+                player.GetComponent<Inventory>().AddNewObject("Slime Sample");
+            }
             once = false;
         }
     }

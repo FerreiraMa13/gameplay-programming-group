@@ -47,6 +47,7 @@ public class NPC_Controller : MonoBehaviour
     /*private float scale = 5.0f;*/
 
     /*protected PlayerMovController player_controller;*/
+    protected GameObject player;
     protected PlayerControllerLite player_controller;
 
     private void Awake()
@@ -345,6 +346,7 @@ public class NPC_Controller : MonoBehaviour
     {
         if (other.gameObject.tag == "Player")
         {
+            player = other.gameObject;
             player_controller = other.gameObject.GetComponent<PlayerControllerLite>();
             player_controller.AddNPC(gameObject.GetComponent<NPC_Controller>());
         }
