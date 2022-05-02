@@ -193,7 +193,7 @@ public class PlayerControllerLite : MonoBehaviour
         }*/
         else
         {
-            animation_controller.speedUP(1);
+            animation_controller.speedUP(speed_boost);
         }
     }
     private void HandleJump()

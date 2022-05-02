@@ -16,7 +16,6 @@ public class HoldPlayer : MonoBehaviour
     }
     private void OnTriggerExit(Collider other)
     {
-        
         if (player != null)
         {
             Debug.Log("Exit");

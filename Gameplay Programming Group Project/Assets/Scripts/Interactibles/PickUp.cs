@@ -23,7 +23,7 @@ public class PickUp : MonoBehaviour
 
     [SerializeField] private float respawn_timer = 0f;
     private bool pickable = true;
-    private MeshRenderer pick_up_mesh;
+    private GameObject child;
 
     private float force;
     private Vector3 action_point;
@@ -39,8 +39,12 @@ public class PickUp : MonoBehaviour
         player_transform = player.GetComponent<Transform>();
         player_script = player.GetComponent<PlayerControllerLite>();
 
+        
+    }
+    private void Awake()
+    {
         power_up = this.gameObject;
-        pick_up_mesh = power_up.GetComponent<MeshRenderer>();
+        child = power_up.transform.GetChild(0).gameObject;
     }
 
     // Update is called once per frame
@@ -52,7 +56,7 @@ public class PickUp : MonoBehaviour
             if (respawn_timer <= 0)
             {
                 pickable = true;
-                pick_up_mesh.enabled = true;
+                child.SetActive( true);
             }
         }
 
@@ -85,7 +89,7 @@ public class PickUp : MonoBehaviour
                 else if (power_up.tag == "SprintBuff")
                 {
                     player_script.sprint_power = true;
-                    player_script.speed_boost_timer = 10f;
+                    player_script.speed_boost_timer = 6f;
                     pickable = false;
                     respawn_timer = 3.0f;
                     //Destroy(power_up, 0f);
@@ -102,7 +106,7 @@ public class PickUp : MonoBehaviour
                     //text_canvas.SetActive(true);
                 }
 
-                pick_up_mesh.enabled = false;
+                child.SetActive( false);
             }
             else if (power_up.tag == "Weapon" && dist >= 2)
             {
