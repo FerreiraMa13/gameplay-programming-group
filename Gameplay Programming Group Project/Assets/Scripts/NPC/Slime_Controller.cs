@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Slime_Controller : NPC_Controller
 {
+    [Header("Slime Specific")]
+    public string drop_name = "Slime Sample";
     public float jump_cooldown = 20.0f;
     public float knockback = 7.0f;
     public float stun_received = 0.25f;
@@ -95,7 +97,7 @@ public class Slime_Controller : NPC_Controller
             }
             else
             {
-                player.GetComponent<Inventory>().AddNewObject("Slime Sample");
+                player.GetComponent<Inventory>().AddNewObject(drop_name);
             }
             once = false;
         }
