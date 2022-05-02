@@ -21,6 +21,10 @@ public class PickUp : MonoBehaviour
     private float bounce_damp = 0.01f;
     [SerializeField] private float float_level = 0.5f;
 
+    [SerializeField] private float respawn_timer = 0f;
+    private bool pickable = true;
+    private MeshRenderer pick_up_mesh;
+
     private float force;
     private Vector3 action_point;
     private Vector3 up_lift;
@@ -36,12 +40,21 @@ public class PickUp : MonoBehaviour
         player_script = player.GetComponent<PlayerControllerLite>();
 
         power_up = this.gameObject;
-
+        pick_up_mesh = power_up.GetComponent<MeshRenderer>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (respawn_timer > 0)
+        {
+            respawn_timer -= Time.deltaTime;
+            if (respawn_timer <= 0)
+            {
+                pickable = true;
+                pick_up_mesh.enabled = true;
+            }
+        }
 
         if (player_transform && power_up.transform)
         {
@@ -57,30 +70,39 @@ public class PickUp : MonoBehaviour
                     power_up.GetComponent<Rigidbody>().AddForceAtPosition(up_lift, action_point);
                 }
             }*/
+            
 
             dist = Vector3.Distance(power_up.transform.position, player_transform.position);
-            if (dist < 2.5)
+            if (dist < 2.5 && pickable)
             {
                 if (power_up.tag == "DoubleJump")
                 {
                     player_script.jumpPower();
-                    Destroy(power_up, 0f);
+                    pickable = false;
+                    respawn_timer = 3.0f;
+                    //Destroy(power_up, 0f);
                 }
                 else if (power_up.tag == "SprintBuff")
                 {
                     player_script.sprint_power = true;
                     player_script.speed_boost_timer = 10f;
-                    Destroy(power_up, 0f);
+                    pickable = false;
+                    respawn_timer = 3.0f;
+                    //Destroy(power_up, 0f);
                 }
                 else if (power_up.tag == "HP")
                 {
                     player_script.healthUp();
-                    Destroy(power_up, 0f);
+                    pickable = false;
+                    respawn_timer = 3.0f;
+                    //Destroy(power_up, 0f);
                 }
                 else if (power_up.tag == "Weapon")
                 {
                     //text_canvas.SetActive(true);
                 }
+
+                pick_up_mesh.enabled = false;
             }
             else if (power_up.tag == "Weapon" && dist >= 2)
             {
