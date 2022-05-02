@@ -14,6 +14,7 @@ public class NPC_Controller : MonoBehaviour
         DISENGAGING = 3,
         CHASING = 4
     }
+    public Vector3 destination;
     public enemyState default_state = enemyState.IDLE;
     public SplineFollower patrol_route;
     [Header("Character Stats")]
@@ -33,10 +34,10 @@ public class NPC_Controller : MonoBehaviour
     [System.NonSerialized] public float distance_from_target;
     [System.NonSerialized] public bool line_of_sight;
     [System.NonSerialized] public bool damage_calc;
-    [System.NonSerialized] public enemyState enemy_state;
+    [SerializeField] public enemyState enemy_state;
     [System.NonSerialized] public bool attacking = false;
     [System.NonSerialized] public float speed_muliplier = 1.0f;
-    [System.NonSerialized] public Vector3 destination;
+    
 
     private float reaction_timer = 0.0f;
     private float turn_smooth_velocity;
@@ -83,12 +84,12 @@ public class NPC_Controller : MonoBehaviour
         if (player_controller != null)
         {
             distance_from_target = Vector3.Distance(transform.position, player_controller.transform.position);
-            line_of_sight = !(Physics.Linecast(transform.position, player_controller.transform.position));
+            /*line_of_sight = !(Physics.Linecast(transform.position, player_controller.transform.position));*/
         }
         else
         {
             distance_from_target = -1;
-            line_of_sight = false;
+            /*line_of_sight = false;*/
         }
 
         OwnUpdate();
@@ -135,10 +136,11 @@ public class NPC_Controller : MonoBehaviour
             {
                 player_controller.RemoveNPC(gameObject.GetComponent<NPC_Controller>());
             }
-            Destroy(gameObject);
+            /*Destroy(gameObject);*/
+            gameObject.SetActive(false);
         }
     }
-    public bool DamageConditions()
+    virtual public bool DamageConditions()
     {
         return player_controller.hit && line_of_sight && (distance_from_target <= player_controller.attack_range + transform.localScale.x / 2 && distance_from_target > 0);
     }
@@ -202,14 +204,15 @@ public class NPC_Controller : MonoBehaviour
         }
         if (destination == Vector3.zero || GetSuppressedDistance(destination, Enums.Axis.YAXIS) < roaming_percision)
         {
-                Vector3 old_destination = destination;
-                while (GetSuppressedDistance(destination, old_destination, Enums.Axis.YAXIS) < roaming_percision * 2)
-                {
-                    destination = Vector3.zero;
-                    destination.x = Random.Range(roaming_bounds_x.x, roaming_bounds_x.y);
-                    destination.z = Random.Range(roaming_bounds_z.x, roaming_bounds_z.y);
-                    destination = arena_center.position + destination;
-                }
+            Vector3 old_destination = destination;
+            while (GetSuppressedDistance(destination, old_destination, Enums.Axis.YAXIS) < roaming_percision * 2)
+            {
+                destination = Vector3.zero;
+                destination.x = Random.Range(roaming_bounds_x.x, roaming_bounds_x.y);
+                destination.z = Random.Range(roaming_bounds_z.x, roaming_bounds_z.y);
+                destination.x += arena_center.position.x;
+                destination.z += arena_center.position.z;
+            }
         }
 
         MoveTowards(destination);
@@ -249,7 +252,11 @@ public class NPC_Controller : MonoBehaviour
         {
             if (reaction_timer <= 0)
             {
-                target_destination = player_controller.transform.position;
+                if(player_controller != null)
+                {
+                    target_destination = player_controller.transform.position;
+                }    
+                
                 reaction_timer = reaction_speed;
             }
             else

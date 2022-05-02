@@ -11,13 +11,15 @@ public class Slime_Controller : NPC_Controller
     public GameObject slime_prefab;
 
     [System.NonSerialized] public bool landed = true;
-    [System.NonSerialized] public int lives = 2;
+    public int lives = 2;
 
     private float jump_timer = 0.0f;
     private bool being_knocked = false;
     private float stun_timer = 0.0f;
     public bool standard_stats = false;
     private bool just_spawned = true;
+    public float spawn_imunity = 1;
+    private float imunity_timer = 1;
     public float default_hp; 
     private bool once = true;
 
@@ -36,6 +38,14 @@ public class Slime_Controller : NPC_Controller
     }
     protected override void OwnUpdate()
     {
+        if(imunity_timer > 0)
+        {
+            imunity_timer -= Time.deltaTime;
+        }
+        else
+        {
+            just_spawned = false;
+        }
         if (patrol_route != null && enemy_state == enemyState.PATROLING)
         {
             patrol_route.active = !landed;
@@ -61,10 +71,6 @@ public class Slime_Controller : NPC_Controller
         
         if (landed)
         {
-            if(just_spawned)
-            {
-                just_spawned = false;
-            }
             if (jump_timer < 0)
             {
                 if (!attacking && enemy_state != enemyState.IDLE)
@@ -84,11 +90,10 @@ public class Slime_Controller : NPC_Controller
     {
         if(once)
         {
-            if (size_multiplier > 1 && lives > 0)
+            if (size_multiplier > 1 && lives - 1 > 0)
             {
-                Debug.Log("Dead");
-                SpawnSlime(lives);
-                SpawnSlime(lives);
+                SpawnSlime(lives -1);
+                SpawnSlime(lives -1);
             }
             else
             {
@@ -97,17 +102,25 @@ public class Slime_Controller : NPC_Controller
             once = false;
         }
     }
-    public void SpawnSlime(float size)
+    public void SpawnSlime(int remain_lives)
     {
+
         Vector3 random_pos_mod = new Vector3(Random.Range(-5.0f, 5.0f), Random.Range(0.0f, 5.0f), Random.Range(-5.0f, 5.0f));
-        GameObject slime = Instantiate(slime_prefab, transform.position + random_pos_mod, transform.rotation);
-        slime.transform.parent = transform.parent;
-        slime.transform.localScale = slime.transform.localScale / (3 + 1 - size);
+        var slime = Instantiate(slime_prefab, transform.position + random_pos_mod, transform.rotation);
+        var new_slime_body = slime.transform.GetChild(0);
+        var sphere_collider = slime.GetComponent<SphereCollider>();
         var slime_controller = slime.GetComponent<Slime_Controller>();
+
+        slime.transform.parent = transform.parent;
+        new_slime_body.transform.localScale = new_slime_body.transform.localScale * remain_lives;
+        sphere_collider.radius = sphere_collider.radius + ((remain_lives - 1) * 3);
+        slime_controller.just_spawned = true;
+        slime_controller.imunity_timer = spawn_imunity;
+        slime_controller.arena_center = arena_center;
         slime_controller.character_hp = default_hp;
-        slime_controller.lives = lives - 1;
+        slime_controller.lives = remain_lives;
         slime_controller.jump_timer = Random.Range(0.0f, 0.9f);
-       slime_controller.ApplyMultiplier(size);
+        slime_controller.ApplyMultiplier(remain_lives);
         slime_controller.default_state = enemyState.ROAMING;
         slime_controller.player_controller = player_controller;
         slime_controller.KnockBack();
@@ -116,7 +129,7 @@ public class Slime_Controller : NPC_Controller
     {
         character_hp = default_hp * multiplier;
         Debug.Log(character_hp);
-        size_multiplier = multiplier;
+        size_multiplier = lives;
         damage = 2 * multiplier;
         standard_stats = false;
     }
@@ -144,7 +157,7 @@ public class Slime_Controller : NPC_Controller
     {
         landed = true;
         being_knocked = false;
-        jump_timer = jump_cooldown + Random.Range(0, 0.5F);
+        jump_timer = jump_cooldown + Random.Range(-0.5F, 0.5F);
     }
     private void KnockBack()
     {
@@ -166,6 +179,22 @@ public class Slime_Controller : NPC_Controller
 
                 KnockBack();
             }
+        }
+    }
+
+    override public bool DamageConditions()
+    {
+        if(player_controller != null)
+        {
+            return
+            player_controller.hit &&
+            /*line_of_sight &&*/
+            (distance_from_target <= player_controller.attack_range + (6 + 3 * lives) * 0.5F && distance_from_target > 0) &&
+            !just_spawned;
+        }
+        else
+        {
+            return false;
         }
     }
 }
