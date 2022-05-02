@@ -17,9 +17,7 @@ public class Slime_Controller : NPC_Controller
     private bool being_knocked = false;
     private float stun_timer = 0.0f;
     public bool standard_stats = false;
-    private bool just_spawned = true;
-    public float spawn_imunity = 1;
-    private float imunity_timer = 1;
+    
     public float default_hp; 
     private bool once = true;
 
@@ -44,7 +42,7 @@ public class Slime_Controller : NPC_Controller
         }
         else
         {
-            just_spawned = false;
+            immune = false;
         }
         if (patrol_route != null && enemy_state == enemyState.PATROLING)
         {
@@ -114,7 +112,7 @@ public class Slime_Controller : NPC_Controller
         slime.transform.parent = transform.parent;
         new_slime_body.transform.localScale = new_slime_body.transform.localScale * remain_lives;
         sphere_collider.radius = sphere_collider.radius + ((remain_lives - 1) * 3);
-        slime_controller.just_spawned = true;
+        slime_controller.immune = true;
         slime_controller.imunity_timer = spawn_imunity;
         slime_controller.arena_center = arena_center;
         slime_controller.character_hp = default_hp;
@@ -123,6 +121,8 @@ public class Slime_Controller : NPC_Controller
         slime_controller.ApplyMultiplier(remain_lives);
         slime_controller.default_state = enemyState.ROAMING;
         slime_controller.player_controller = player_controller;
+        slime_controller.movement_speed = (movement_speed/lives) * remain_lives;
+        slime_controller.reaction_speed = reaction_speed;
         slime_controller.KnockBack();
     }
     public void ApplyMultiplier(float multiplier)
@@ -139,7 +139,7 @@ public class Slime_Controller : NPC_Controller
     }
     public override void TakeDamage(float damage_taken)
     {
-        if(!just_spawned)
+        if(!immune)
         {
             base.TakeDamage(damage_taken);
         }
@@ -190,7 +190,7 @@ public class Slime_Controller : NPC_Controller
             player_controller.hit &&
             /*line_of_sight &&*/
             (distance_from_target <= player_controller.attack_range + (6 + 3 * lives) * 0.5F && distance_from_target > 0) &&
-            !just_spawned;
+            !immune;
         }
         else
         {

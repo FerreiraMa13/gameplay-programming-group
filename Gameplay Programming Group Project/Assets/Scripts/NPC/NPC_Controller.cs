@@ -45,11 +45,18 @@ public class NPC_Controller : MonoBehaviour
     private float give_up_timer = -0.1f;
     private bool giving_up = false;
     private Vector3 target_destination;
+
+    protected bool immune = true;
+    public float spawn_imunity = 1;
+    protected float imunity_timer = 1;
+
     /*private float scale = 5.0f;*/
 
     /*protected PlayerMovController player_controller;*/
     protected GameObject player;
     protected PlayerControllerLite player_controller;
+    bool chasing = false;
+
 
     private void Awake()
     {
@@ -59,6 +66,8 @@ public class NPC_Controller : MonoBehaviour
         {
             arena_center = transform.parent;
         }
+        player = GameObject.FindGameObjectWithTag("Player");
+        player_controller = player.GetComponent<PlayerControllerLite>();
     }
     
     private void OnValidate()
@@ -81,7 +90,7 @@ public class NPC_Controller : MonoBehaviour
             Die();
         }
 
-        if (player_controller != null)
+        if (chasing)
         {
             distance_from_target = Vector3.Distance(transform.position, player_controller.transform.position);
             /*line_of_sight = !(Physics.Linecast(transform.position, player_controller.transform.position));*/
@@ -103,7 +112,7 @@ public class NPC_Controller : MonoBehaviour
             else if (giving_up)
             {
                 giving_up = false;
-                player_controller = null;
+                chasing = false;
                 give_up_timer = 0;
             }
         }
@@ -118,24 +127,27 @@ public class NPC_Controller : MonoBehaviour
     }
     public virtual void TakeDamage(float damage_taken)
     {
-        
-        damage_taken -= character_armor;
-        if (damage_taken > 0)
+        if(!immune)
         {
-            character_hp -= damage_taken;
-        }
-        AdditionalAttackEffects();
+            player_controller.hit = false;
+            damage_taken -= character_armor;
+            if (damage_taken > 0)
+            {
+                character_hp -= damage_taken;
+            }
+            AdditionalAttackEffects();
 
+            
+            imunity_timer = spawn_imunity;
+            immune = true;
+        }
     }
     public void Die()
     {
         Deathrattle();
         if (character_hp <= 0)
         {
-            if (player_controller != null)
-            {
-                player_controller.RemoveNPC(gameObject.GetComponent<NPC_Controller>());
-            }
+           player_controller.RemoveNPC(gameObject.GetComponent<NPC_Controller>());
             /*Destroy(gameObject);*/
             gameObject.SetActive(false);
         }
@@ -174,7 +186,7 @@ public class NPC_Controller : MonoBehaviour
     }
     private enemyState Idle(float dt)
     {
-        if (player_controller != null)
+        if (chasing)
         {
             return enemyState.CHASING;
         }
@@ -182,7 +194,7 @@ public class NPC_Controller : MonoBehaviour
     }
     private enemyState Patrol(float dt)
     {
-        if (player_controller != null)
+        if (chasing)
         {
             if(patrol_route != null)
             {
@@ -198,7 +210,7 @@ public class NPC_Controller : MonoBehaviour
     }
     private enemyState Roam(float dt)
     {
-        if(player_controller != null)
+        if(chasing)
         {
             return enemyState.CHASING;
         }
@@ -248,15 +260,12 @@ public class NPC_Controller : MonoBehaviour
     }
     private enemyState Chase(float dt)
     {
-        if (player_controller != null)
+        if (chasing)
         {
             if (reaction_timer <= 0)
             {
-                if(player_controller != null)
-                {
-                    target_destination = player_controller.transform.position;
-                }    
-                
+                target_destination = player_controller.transform.position;
+
                 reaction_timer = reaction_speed;
             }
             else
@@ -353,16 +362,17 @@ public class NPC_Controller : MonoBehaviour
     {
         if (other.gameObject.tag == "Player")
         {
-            player = other.gameObject;
-            player_controller = other.gameObject.GetComponent<PlayerControllerLite>();
+            /*player = other.gameObject;
+            player_controller = other.gameObject.GetComponent<PlayerControllerLite>();*/
             player_controller.AddNPC(gameObject.GetComponent<NPC_Controller>());
+            chasing = true;
         }
     }
     private void OnTriggerExit(Collider other)
     {
         if (other.gameObject.tag == "Player")
         {
-            player_controller = other.gameObject.GetComponent<PlayerControllerLite>();
+            /*player_controller = other.gameObject.GetComponent<PlayerControllerLite>();*/
             player_controller.RemoveNPC(gameObject.GetComponent<NPC_Controller>());
             give_up_timer = give_up_time;
             giving_up = true;
