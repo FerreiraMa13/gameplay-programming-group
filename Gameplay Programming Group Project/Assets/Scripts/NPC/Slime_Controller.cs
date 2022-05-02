@@ -144,7 +144,7 @@ public class Slime_Controller : NPC_Controller
     {
         landed = true;
         being_knocked = false;
-        jump_timer = jump_cooldown;
+        jump_timer = jump_cooldown + Random.Range(0, 0.5F);
     }
     private void KnockBack()
     {

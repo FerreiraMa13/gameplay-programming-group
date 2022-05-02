@@ -27,12 +27,12 @@ public class Inventory_Condition : Condition
         {
             foreach(Inventory inventory in checkInventories)
             {
-                bool inventory_check = false;
+                bool inventory_check = true;
                 for(int i = 0; i < requiredItemQuantities.Count; i++)
                 {
-                    if(inventory.CheckForObject(requiredItemNames[i], requiredItemQuantities[i]))
+                    if(!inventory.CheckForObject(requiredItemNames[i], requiredItemQuantities[i]))
                     {
-                        inventory_check = true;
+                        inventory_check = false;
                         break;
                     }
                 }

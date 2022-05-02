@@ -6,7 +6,8 @@ public class GeneralButtonInteractible : HitObject
 {
     [System.NonSerialized]
     public bool pressed = false;
-    public InteractionReceiver[] interactibles;
+
+    public List<InteractionReceiver> interactibles;
 
     public override void OnHitBehaviour()
     {
