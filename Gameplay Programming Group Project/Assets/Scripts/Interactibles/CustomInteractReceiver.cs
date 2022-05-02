@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InteractionReceiver : MonoBehaviour
+public class CustomInteractReceiver : MonoBehaviour
 {
     public bool active = true;
     [System.NonSerialized]

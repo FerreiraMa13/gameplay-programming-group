@@ -50,7 +50,10 @@ public class InteractionBroadcaster : MonoBehaviour
         {
             if (player.interact && valid)
             {
-                OnHitBehaviour();
+               if( CheckConditions())
+                {
+                    OnHitBehaviour();
+                }
             }
         }
     }
@@ -70,5 +73,21 @@ public class InteractionBroadcaster : MonoBehaviour
             }
         }
         
+    }
+
+    private bool CheckConditions()
+    {
+        var conditions = GetComponents<Condition>();
+        if (conditions != null)
+        {
+            foreach (Condition condition in conditions)
+            {
+                if (!condition.CheckCondition())
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

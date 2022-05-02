@@ -123,7 +123,7 @@ public class Slime_Controller : NPC_Controller
         slime_controller.ApplyMultiplier(remain_lives);
         slime_controller.default_state = enemyState.ROAMING;
         slime_controller.player_controller = player_controller;
-        slime_controller.movement_speed = (movement_speed/lives) * remain_lives;
+        slime_controller.movement_speed = (movement_speed) * 2;
         slime_controller.reaction_speed = reaction_speed;
         slime_controller.KnockBack();
     }

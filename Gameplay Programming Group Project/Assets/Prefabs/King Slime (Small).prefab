@@ -1142,7 +1142,7 @@ MonoBehaviour:
   arena_center: {fileID: 0}
   enemy_state: 0
   spawn_imunity: 1.5
-  drop_name: King's Crown Shards
+  drop_name: Crown Shard
   jump_cooldown: 1
   knockback: 24
   stun_received: 0

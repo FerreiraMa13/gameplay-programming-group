@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class Inventory_Condition : Condition
 {
-    bool valid = false;
+    private bool valid = false;
+    public bool active = true;
     public List<Inventory> checkInventories;
     public List<string> requiredItemNames;
     public List<int> requiredItemQuantities;
@@ -23,7 +24,7 @@ public class Inventory_Condition : Condition
     }
     protected override bool CheckRequirments()
     {
-        if (valid)
+        if (valid && active)
         {
             foreach(Inventory inventory in checkInventories)
             {

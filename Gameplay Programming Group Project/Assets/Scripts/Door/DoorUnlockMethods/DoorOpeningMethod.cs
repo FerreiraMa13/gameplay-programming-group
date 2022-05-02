@@ -8,7 +8,7 @@ public class DoorOpeningMethod : MonoBehaviour
     {
         NONE = 0,
         BUTTON = 1,
-        KEY = 2,
+        INTERACTIBLE = 2,
         TRIGGER = 3
     }
 
