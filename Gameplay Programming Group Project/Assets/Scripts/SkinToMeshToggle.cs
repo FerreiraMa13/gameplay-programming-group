@@ -25,7 +25,14 @@ public class SkinToMeshToggle : MonoBehaviour
 
             }
             /*GetComponent<SkinnedMeshRenderer>().material = GetComponent<SkinnedMeshRenderer>().materials[1];*/
-            GetComponent<SkinnedMeshRenderer>().material = newMaterial;
+            if(GetComponent<SkinnedMeshRenderer>() != null)
+            {
+                GetComponent<SkinnedMeshRenderer>().material = newMaterial;
+            }
+            else if(GetComponent<MeshRenderer>())
+            {
+                GetComponent<MeshRenderer>().material = newMaterial;
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class TriggerBehaviour : MonoBehaviour
 {
@@ -23,7 +24,9 @@ public class TriggerBehaviour : MonoBehaviour
     private float onExitTimer = 0;
     public float onExitDelay = 0;
 
-    
+    public TextMeshProUGUI error_text;
+
+
     /*public List<TriggerDoor> triggerDoors;*/
     /*public TriggerDoor triggerDoor = null;*/
     bool triggered = false;
@@ -81,6 +84,13 @@ public class TriggerBehaviour : MonoBehaviour
                     EnterTrigger();
                 }
             }
+            else
+            {
+                if(error_text != null)
+                {
+                    error_text.enabled = true;
+                }
+            }
         }
     }
     private void OnTriggerExit(Collider other)
@@ -103,6 +113,11 @@ public class TriggerBehaviour : MonoBehaviour
                 {
                     ExitTrigger();
                 }
+            }
+
+            if(error_text != null)
+            {
+                error_text.enabled = false;
             }
         }
     }
